@@ -13,18 +13,27 @@ dependencies = [
 
 [dependency-groups]
 dev = [
-    "grpc-stubs>=1.53.0.6",
     "grpcio-tools>=1.84.0",
+    "mypy>=2.4.0",
     "pytest>=9.1.1",
     "pytest-asyncio>=1.4.0",
     "ruff>=0.16.10",
+    "types-grpcio>=1.84.0.20260928",
+    "types-protobuf>=7.35.1.20260906",
 ]
+
+[tool.mypy]
+python_version = "3.13"
+# Проверяем только рукописный код;
+# сгенерированные pb2-модули типизируются через .pyi-стабы protoc.
+files = ["src", "tests"]
 
 [tool.ruff]
 line-length = 88  # Значение по умолчанию для ruff, но отличается от PEP8
 target-version = "py313"
 
-extend-exclude = ["*_pb2.py", "*_pb2_grpc.py"]
+# Сгенерированный protoc код не линтуем и не форматтируем.
+extend-exclude = ["*_pb2.py", "*_pb2.pyi", "*_pb2_grpc.py"]
 
 [tool.ruff.lint]
 select = [
@@ -73,7 +82,14 @@ unfixable = [
 convention = "google"
 
 [tool.ruff.lint.isort]
-known-first-party = ["src"]
+known-first-party = ["src", "kvstore_pb2", "kvstore_pb2_grpc"]
+
+[tool.ruff.lint.per-file-ignores]
+# Сигнатуры методов servicer фиксированы сгенерированным базовым классом gRPC,
+# поэтому часть обработчиков не может использовать все параметры (context).
+"src/**" = ["ARG002"]
+# Вспомогательным функциям в тестах не обязателен докстринг для каждой.
+"tests/**" = ["D103"]
 
 [tool.ruff.format]
 quote-style = "double"
