@@ -1,0 +1,9 @@
+# Сервис kvstore (mini Redis) на gRPC, порт 8000 по заданию.
+services:
+  app:
+    build: .
+    image: mini-redis-grpc:latest
+    container_name: kvstore
+    ports:
+      - "8000:8000"
+    restart: unless-stopped
